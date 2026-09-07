@@ -3,6 +3,24 @@
 Direct quotations from first-party Microsoft Learn documentation, retrieved **29 July 2026**.
 Each claim in the [README](../README.md) traces to an item here.
 
+## September refresh: scoped, not a new full audit
+
+On **7 September 2026**, the current Microsoft Learn pages for
+[Foundry Local](https://learn.microsoft.com/azure/ai-foundry/foundry-local/what-is-foundry-local),
+[custom-agent registration](https://learn.microsoft.com/azure/foundry/control-plane/register-custom-agent),
+and [agent management](https://learn.microsoft.com/azure/foundry/control-plane/how-to-manage-agents)
+were fetched again.
+
+They continue to distinguish local inference from registration of a reachable
+agent application, and custom-agent block/unblock from infrastructure start/stop.
+Registration describes telemetry as optional when that capability is not needed;
+metrics and detailed traces require the appropriate observability configuration.
+The README now states that distinction instead of implying telemetry is always
+a prerequisite for basic inventory.
+
+The July APIM-tier, Azure Local, and identity comparisons below remain a dated
+snapshot. This refresh does not certify every negative claim in them.
+
 ---
 
 ## 1. Foundry Control Plane — supported agent platforms

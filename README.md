@@ -7,6 +7,12 @@ A sourced research brief answering one question:
 Every claim here is traced to first-party Microsoft Learn documentation, quoted in
 [`docs/evidence.md`](docs/evidence.md). Researched **29 July 2026**.
 
+**Go deeper:** [WORKSHOP.md](WORKSHOP.md) is a 45-minute research lab with
+claim classification, two concrete data-flow scenarios, a falsification exercise,
+and a decision-record template. The model/application distinction and custom-agent
+registration/management sources were rechecked **7 September 2026**; the entire
+July feature/tier matrix has not been revalidated. See the evidence refresh note.
+
 > [!WARNING]
 > These are fast-moving products, several of them in preview. Negative claims ("X is not
 > supported") are the first thing to go stale. Treat this as a **dated snapshot** and re-verify
@@ -23,8 +29,9 @@ The Foundry Control Plane governs an agent by sitting in one or both of two path
 1. **The control path** — an Azure API Management (APIM) endpoint it can route through and block.
 2. **The telemetry path** — OpenTelemetry gen-AI spans landing in the project's Application Insights.
 
-Foundry Local is in **neither** path. That is the whole answer, and it holds regardless of how the
-product naming evolves.
+An out-of-the-box Foundry Local inference runtime does not by itself put an agent
+application in either path. An application using it can separately add a gateway
+and telemetry, which is why the qualified custom-agent answer below matters.
 
 | Your reading of "Azure Foundry Local" | What it actually is | Managed by Foundry Control Plane? |
 |---|---|---|
@@ -49,9 +56,10 @@ normal, documented pattern. What doesn't exist is an **agent-shaped resource for
 attach to**. From Foundry's perspective, that agent is an ordinary external application.
 
 > [!IMPORTANT]
-> **The Foundry Local model endpoint is not itself registerable as a custom agent.** The registration
-> target is your *agent application* — the thing implementing agent behaviour, the HTTP/A2A contract,
-> and the telemetry. Registering a bare model server would not give you an agent in the Control Plane.
+> **Do not confuse registering an HTTP endpoint with governing a complete agent.**
+> The relevant target is your agent application's behavior and access boundary.
+> A bare inference endpoint does not establish control over a separate
+> application's tools, state, or direct local invocation paths.
 
 ---
 
@@ -79,7 +87,7 @@ absence of Foundry Local is not a special snub, the discovery surface is simply 
 | **AI Gateway** | Azure API Management, **v2 tiers only** (Basic v2 / Standard v2 / Premium v2), in the **same Entra tenant and same subscription** as the Foundry resource. |
 | **Reachable endpoint** | "a public endpoint or an endpoint that's reachable from the network where you deploy the Foundry resource." |
 | **Protocol** | HTTP (general) or A2A. |
-| **Telemetry** | OpenTelemetry gen-AI semantic conventions → the project's Application Insights. Needs spans with `gen_ai.operation.name="create_agent"` and `gen_ai.agent.id`. |
+| **Telemetry** | Optional for registration, required for the corresponding observability evidence. Detailed agent traces use OpenTelemetry gen-AI conventions and the project's Application Insights. |
 | **Client change** | Registration mints a **new APIM URL**; clients "must use this URL." |
 
 The docs scope this path to agents running "in Azure compute services or other cloud environments."
@@ -172,8 +180,10 @@ creates a real and specific trade-off:
 
 > [!CAUTION]
 > **Two independent Azure dependencies, not one.** Beyond the APIM hop, the telemetry hop is
-> mandatory for the inventory to show anything useful: the agent must hold an App Insights connection
-> string and egress to Azure Monitor. And **gen-AI OTel spans can carry prompt and completion content**
+> needed for the corresponding diagnostic metrics and detailed agent traces;
+> registration and basic inventory do not require every telemetry feature.
+> Custom instrumentation needs a configured export path to Azure Monitor.
+> **Gen-AI OTel spans can carry prompt and completion content**
 > depending on configuration (the sample in the docs sets `enable_content_recording=True`). So
 > "data never leaves the device" can fail at the telemetry hop even if you were relaxed about the
 > gateway hop.
